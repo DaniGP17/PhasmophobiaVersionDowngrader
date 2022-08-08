@@ -17,6 +17,7 @@ using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using System.Threading;
 
 
 namespace PhasmophobiaVersionDowngrader
@@ -26,6 +27,7 @@ namespace PhasmophobiaVersionDowngrader
         List<UpdateListJson> datos = new List<UpdateListJson>();
         private string selectedManifest = null;
         private Process proc;
+        private StreamWriter myStreamWriter;
         private bool loginTry = false;
 
         public MainWindow()
@@ -46,8 +48,14 @@ namespace PhasmophobiaVersionDowngrader
             size.Width = 672;
             size.Height = 537;
             appWindow.Resize(size);
+            appWindow.SetIcon("C:\\Users\\danie\\Downloads\\communityIcon_qt455yfqyep51.ico");
         }
 
+        private void LoadIcon(string iconName)
+        {
+            //Get the Window's HWND
+            
+        }
 
         private void SetUpdateList()
         {
@@ -118,23 +126,32 @@ namespace PhasmophobiaVersionDowngrader
                 return;
             }
 
-            if (!loginTry)
+            if (!loginTry && sender.ToString() == "Microsoft.UI.Xaml.Controls.Button")
             {
-                loginTry = true;
-                proc = Process.Start(new ProcessStartInfo(@"C:\Users\danie\source\repos\PhasmophobiaVersionDowngrader\PhasmophobiaVersionDowngrader\Depot\DepotDownloader.exe")
+                if (!loginTry && sender.ToString() == "Microsoft.UI.Xaml.Controls.Button")
                 {
-                    Arguments = "-app 739630 -depot 739631 -manifest " + selectedManifest + " -username " + username + " -password " + password,
-                    WindowStyle = ProcessWindowStyle.Normal,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardInput = true
-                });
+                    proc = Process.Start(new ProcessStartInfo(@"C:\Users\danie\source\repos\PhasmophobiaVersionDowngrader\PhasmophobiaVersionDowngrader\Depot\DepotDownloader.exe")
+                    {
+                        Arguments = "-app 739630 -depot 739631 -manifest " + selectedManifest + " -username " + username + " -password " + password,
+                        WindowStyle = ProcessWindowStyle.Normal,
+                        CreateNoWindow = false,
+                        UseShellExecute = false,
+                        RedirectStandardError = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardInput = true
+                    });
+                }
 
-                while (!proc.StandardOutput.EndOfStream)
+                loginTry = true;
+
+                myStreamWriter = proc.StandardInput;
+                while (proc.StandardOutput.ReadLine() != null)
                 {
                     string line = proc.StandardOutput.ReadLine();
+                    if(line == null)
+                    {
+                        return;
+                    }
                     if (line.Contains("protected"))
                     {
                         System.Diagnostics.Debug.WriteLine("Esta protegido por steam guard");
@@ -147,6 +164,7 @@ namespace PhasmophobiaVersionDowngrader
                         ErrorLoginSteam.Message = "Invalid password, please try again.";
                         LoadingBarLoginSteam.Visibility = Visibility.Collapsed;
                         LoginButton.IsEnabled = true;
+                        //CloseApplicationDelay();
                     }
                     else if (line.Contains("RateLimitExceeded"))
                     {
@@ -154,6 +172,7 @@ namespace PhasmophobiaVersionDowngrader
                         ErrorLoginSteam.Message = "Your IP has been rate limited due to the request exceeded, wait and try again.";
                         LoadingBarLoginSteam.Visibility = Visibility.Collapsed;
                         LoginButton.IsEnabled = true;
+                        //CloseApplicationDelay();
                     }
                     else if (line.Contains("Got session token!"))
                     {
@@ -174,6 +193,12 @@ namespace PhasmophobiaVersionDowngrader
             }
         }
 
+        private void CloseApplicationDelay()
+        {
+            Thread.Sleep(3000);
+            Environment.Exit(1);
+        }
+
         private void AuthButton_Click(object sender, RoutedEventArgs e)
         {
             var authCode = AuthCode.Text;
@@ -184,10 +209,10 @@ namespace PhasmophobiaVersionDowngrader
                 return;
             }
 
-            proc.StandardInput.WriteLine(authCode);
+            myStreamWriter.WriteLine(authCode + "\n");
 
-            AuthCodeSteamPanel.Visibility = Visibility.Collapsed;
-            DownloadPanel.Visibility = Visibility.Visible;
+            /*AuthCodeSteamPanel.Visibility = Visibility.Collapsed;
+            DownloadPanel.Visibility = Visibility.Visible;*/
         }
 
         private void CancelDownload_Click(object sender, RoutedEventArgs e)
