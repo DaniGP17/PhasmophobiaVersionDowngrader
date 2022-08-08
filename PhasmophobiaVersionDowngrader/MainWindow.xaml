@@ -36,7 +36,7 @@
         <StackPanel Visibility="Collapsed" x:Name="DownloadPanel">
             <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0" Text="Phasmophobia" FontFamily="October Crow" FontSize="50"  />
             <TextBlock HorizontalAlignment="Center" Text="Version Downgrader" FontFamily="October Crow" FontSize="35" />
-            <TextBlock HorizontalAlignment="Center" x:Name="DownloadPorcentage" Text="Downloading: 0%" Margin="0 100 0 20" FontFamily="Yahfie" FontSize="40" />
+            <TextBlock HorizontalAlignment="Center"  x:Name="DownloadPorcentage" Text="Downloading: 0%" Margin="0 100 0 20" FontFamily="Yahfie" FontSize="40" />
             <ProgressBar Width="580" Foreground="white" IsIndeterminate="True" Margin="0 0 0 100" ShowPaused="False" ShowError="False" />
             <CheckBox Content="End Notification" Margin="0 0 0 20" HorizontalAlignment="Center" />
             <Button Margin="0 0 0 0" x:Name="CancelDownload" Click="CancelDownload_Click" Style="{StaticResource AccentButtonStyle}" Background="White" HorizontalAlignment="Center" Width="580" Content="Cancel" />

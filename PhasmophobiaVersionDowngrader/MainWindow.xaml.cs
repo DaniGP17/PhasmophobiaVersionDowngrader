@@ -18,7 +18,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using System.Threading;
-
+using System.Threading.Tasks;
 
 namespace PhasmophobiaVersionDowngrader
 {
@@ -29,6 +29,8 @@ namespace PhasmophobiaVersionDowngrader
         private Process proc;
         private StreamWriter myStreamWriter;
         private bool loginTry = false;
+        private bool needAuth = false;
+        private Thread downloadThread;
 
         public MainWindow()
         {
@@ -49,6 +51,8 @@ namespace PhasmophobiaVersionDowngrader
             size.Height = 537;
             appWindow.Resize(size);
             appWindow.SetIcon("C:\\Users\\danie\\Downloads\\communityIcon_qt455yfqyep51.ico");
+
+            
         }
 
         private void LoadIcon(string iconName)
@@ -132,9 +136,9 @@ namespace PhasmophobiaVersionDowngrader
                 {
                     proc = Process.Start(new ProcessStartInfo(@"C:\Users\danie\source\repos\PhasmophobiaVersionDowngrader\PhasmophobiaVersionDowngrader\Depot\DepotDownloader.exe")
                     {
-                        Arguments = "-app 739630 -depot 739631 -manifest " + selectedManifest + " -username " + username + " -password " + password,
+                        Arguments = "-app 739630 -depot 739631 -manifest " + selectedManifest + " -username " + username + " -password " + password + " -dir C:\\Users\\danie\\Documents\\GitHub\\PhasmophobiaVersionDowngrader\\PhasmophobiaVersionDowngrader\\Depot\\Downloads",
                         WindowStyle = ProcessWindowStyle.Normal,
-                        CreateNoWindow = false,
+                        CreateNoWindow = true,
                         UseShellExecute = false,
                         RedirectStandardError = true,
                         RedirectStandardOutput = true,
@@ -145,7 +149,9 @@ namespace PhasmophobiaVersionDowngrader
                 loginTry = true;
 
                 myStreamWriter = proc.StandardInput;
-                while (proc.StandardOutput.ReadLine() != null)
+
+                
+                while (!proc.StandardOutput.EndOfStream && !needAuth)
                 {
                     string line = proc.StandardOutput.ReadLine();
                     if(line == null)
@@ -157,6 +163,7 @@ namespace PhasmophobiaVersionDowngrader
                         System.Diagnostics.Debug.WriteLine("Esta protegido por steam guard");
                         LoginSteamPanel.Visibility = Visibility.Collapsed;
                         AuthCodeSteamPanel.Visibility = Visibility.Visible;
+                        needAuth = true;
                     }
                     else if (line.Contains("InvalidPassword"))
                     {
@@ -210,15 +217,63 @@ namespace PhasmophobiaVersionDowngrader
             }
 
             myStreamWriter.WriteLine(authCode + "\n");
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                string line = proc.StandardOutput.ReadLine();
+                if(line.Contains("not available from this account"))
+                {
+                    AuthCodeLoginError.IsOpen = true;
+                    AuthCodeLoginError.Message = "This account don't have phasmophobia in the library";
+                    break;
+                }
+                else if(line.Contains("Downloading depot manifest") || line.Contains("Processing depot 739631") || line.Contains("Downloading depot 739631")){
+                    AuthCodeSteamPanel.Visibility = Visibility.Collapsed;
+                    DownloadPanel.Visibility = Visibility.Visible;
+                    TestingDownloading();
+                    break;
+                }
+                System.Diagnostics.Debug.WriteLine(line);
+            }
+        }
 
-            /*AuthCodeSteamPanel.Visibility = Visibility.Collapsed;
-            DownloadPanel.Visibility = Visibility.Visible;*/
+        private async void TestingDownloading()
+        {
+            var progress = new Progress<string>(value =>
+            {
+                DownloadPorcentage.Text = "" + value;
+            });
+            await Task.Run(() => ChangeLoadingPorcentage(progress));
+            DownloadPorcentage.Text = "Completed";
+        }
+
+        void ChangeLoadingPorcentage(IProgress<string> progress)
+        {
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                string line = proc.StandardOutput.ReadLine();
+                System.Diagnostics.Debug.WriteLine(line);
+                if (line.Contains("%"))
+                {
+                    var porcentage = line.Substring(1, 7);
+                    progress.Report("Downloading: " + porcentage);
+                }
+                else if (line.Contains("Total downloaded"))
+                {
+                    DownloadPanel.Visibility = Visibility.Collapsed;
+                    FinishPanel.Visibility = Visibility.Visible;
+                }
+                else if(line.Contains("Pre-allocating"))
+                {
+                    progress.Report("Allowcating Files");
+                }
+            }
         }
 
         private void CancelDownload_Click(object sender, RoutedEventArgs e)
         {
             DownloadPanel.Visibility = Visibility.Collapsed;
             SelectVersionPanel.Visibility = Visibility.Visible;
+            downloadThread.Abort();
         }
 
         private void BackToSelect_Click(object sender, RoutedEventArgs e)
