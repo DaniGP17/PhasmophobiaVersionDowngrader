@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PhasmophobiaVersionDowngrader (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "PhasmophobiaVersionDowngrader (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

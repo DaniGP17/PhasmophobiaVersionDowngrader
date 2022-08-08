@@ -1,0 +1,67 @@
+﻿<Window
+    x:Class="PhasmophobiaVersionDowngrader.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PhasmophobiaVersionDowngrader"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" MaxHeight="537" MinHeight="537" MaxWidth="672" MinWidth="672">
+        <StackPanel x:Name="SelectVersionPanel">
+            <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0" Text="Phasmophobia" FontFamily="October Crow" FontSize="50"  />
+            <TextBlock HorizontalAlignment="Center" Text="Version Downgrader" FontFamily="October Crow" FontSize="35" />
+            <ComboBox SelectionChanged="UpdatesList_SelectionChanged" HorizontalAlignment="Center" x:Name="UpdatesList" Width="580" Margin="0 20 0 30" Header="Selected Version" PlaceholderText="Select a version"/>
+            <TextBlock HorizontalAlignment="Center" x:Name="versionDate" Text="Version Date: -" Margin="0 10 0 10" FontFamily="Yahfie" FontSize="25" />
+            <TextBlock HorizontalAlignment="Center" x:Name="gameAssembly" Text="Game Assembly: -" Margin="0 10 0 10" FontFamily="Yahfie" FontSize="25" />
+            <TextBlock HorizontalAlignment="Center" x:Name="betaVersion" Text="Beta Version: -" Margin="0 10 0 10" FontFamily="Yahfie" FontSize="25" />
+            <TextBlock HorizontalAlignment="Center" x:Name="manifest" Text="Manifest: -" Margin="0 10 0 0" FontFamily="Yahfie" FontSize="25" />
+            <Button Margin="0 50 0 0" x:Name="SelectVersion" Click="SelectVersion_Click" Style="{StaticResource AccentButtonStyle}" Background="White" HorizontalAlignment="Center" Width="580" Content="Select Version" />
+        </StackPanel>
+        <StackPanel Visibility="Collapsed" x:Name="LoginSteamPanel">
+            <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0" Text="Phasmophobia" FontFamily="October Crow" FontSize="50"  />
+            <TextBlock HorizontalAlignment="Center" Text="Version Downgrader" Margin="0 0 0 30" FontFamily="October Crow" FontSize="35" />
+            <TextBox Header="Steam Username:" x:Name="steamUsername" Margin="0 0 0 30" Width="580" PlaceholderText="Username" />
+            <PasswordBox Header="Steam Password" x:Name="steamPassword" Width="580" Margin="0 0 0 20" PlaceholderText="Password" />
+            <ProgressBar Width="580" Visibility="Collapsed" x:Name="LoadingBarLoginSteam" Foreground="white" IsIndeterminate="True" Margin="0 20 0 0" ShowPaused="False" ShowError="False" />
+            <Button Margin="0 30 0 10" x:Name="LoginButton" IsEnabled="True" Click="LoginButton_Click" Style="{StaticResource AccentButtonStyle}" Background="White" HorizontalAlignment="Center" Width="580" Content="Login" />
+            <InfoBar IsOpen="False" x:Name="ErrorLoginSteam" Severity="Error" Height="150" Width="580" Title="Error" Message="Error message"/>
+        </StackPanel>
+        <StackPanel Visibility="Collapsed" x:Name="AuthCodeSteamPanel">
+            <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0" Text="Phasmophobia" FontFamily="October Crow" FontSize="50"  />
+            <TextBlock HorizontalAlignment="Center" Text="Version Downgrader" FontFamily="October Crow" FontSize="35" />
+            <TextBox Header="Steam 2FA Auth Code:" x:Name="AuthCode" Margin="0 90 0 70" Width="580" PlaceholderText="2FA Auth Code" />
+            <Button Margin="0 40 0 10" x:Name="AuthButton" Click="AuthButton_Click" Style="{StaticResource AccentButtonStyle}" Background="White" HorizontalAlignment="Center" Width="580" Content="Authenticate" />
+            <InfoBar IsOpen="False" x:Name="AuthCodeLoginError" Severity="Error" Height="150" Width="580" Title="Error" Message="Error message"/>
+        </StackPanel>
+        <StackPanel Visibility="Collapsed" x:Name="DownloadPanel">
+            <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0" Text="Phasmophobia" FontFamily="October Crow" FontSize="50"  />
+            <TextBlock HorizontalAlignment="Center" Text="Version Downgrader" FontFamily="October Crow" FontSize="35" />
+            <TextBlock HorizontalAlignment="Center" x:Name="DownloadPorcentage" Text="Downloading: 0%" Margin="0 100 0 20" FontFamily="Yahfie" FontSize="40" />
+            <ProgressBar Width="580" Foreground="white" IsIndeterminate="True" Margin="0 0 0 100" ShowPaused="False" ShowError="False" />
+            <CheckBox Content="End Notification" Margin="0 0 0 20" HorizontalAlignment="Center" />
+            <Button Margin="0 0 0 0" x:Name="CancelDownload" Click="CancelDownload_Click" Style="{StaticResource AccentButtonStyle}" Background="White" HorizontalAlignment="Center" Width="580" Content="Cancel" />
+        </StackPanel>
+        <StackPanel x:Name="FinishPanel" Visibility="Collapsed" HorizontalAlignment="Center">
+            <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0" Text="Phasmophobia" FontFamily="October Crow" FontSize="50"  />
+            <TextBlock HorizontalAlignment="Center" Text="Version Downgrader" FontFamily="October Crow" FontSize="35" />
+            <Grid HorizontalAlignment="Center" Margin="0 50 0 40" Width="2000">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <RichTextBlock Grid.Column="1" TextAlignment="Center" Margin="12,0">
+                    <Paragraph FontFamily="Yahfie" FontSize="30">
+                        Thank you for using this tool if you want to support the creator of the tool follow DaniGP17 on github.
+                    If you have any problems do not hesitate to contact the discord of Phasmophobia Modding Community. This tool has been built only with educational purposes
+                    </Paragraph>
+                </RichTextBlock>
+                <RichTextBlockOverflow x:Name="firstOverflowContainer" Grid.Column="1" Margin="12,0"/>
+                <RichTextBlockOverflow x:Name="secondOverflowContainer" Grid.Column="2" Margin="12,0"/>
+            </Grid>
+            <HyperlinkButton Content="DaniGP17 Github" Margin="0 0 0 0" NavigateUri="https://github.com/DaniGP17" HorizontalAlignment="Center" Width="580" />
+            <HyperlinkButton Content="Phasmophobia Modding Community Discord" Margin="0 0 0 15" NavigateUri="https://discord.gg/trYCsUUqyt" HorizontalAlignment="Center" Width="580" />
+            <Button Margin="0 0 0 0" Style="{StaticResource AccentButtonStyle}" x:Name="BackToSelect" Click="BackToSelect_Click" Background="White" HorizontalAlignment="Center" Width="580" Content="Back" />
+        </StackPanel>
+    </StackPanel>
+</Window>
